@@ -32,7 +32,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      - name: Create templates directory and move index.html
+        run: |
+          mkdir -p templates
+          cp -f static/index.html templates/ || echo "File already moved or doesn't exist"
+          ls -la templates/
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -63,14 +67,13 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_93B75C5C70B44EE1A2CF654735E1AC56 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F9594250706F4A638C2A18DEF1AD1716 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5F1A9CC3A0DD4478BB5F57989C2F8A24 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_824E1CF42EBE45C9BD74FB92E78D4E23 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FA74217CB7154001B9FB00E16F1E61A2 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F1C4D1EAC6B4BC79D4A550AA3F336F1 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -78,4 +81,4 @@ jobs:
         with:
           app-name: 'binance-market-dashboard'
           slot-name: 'Production'
-          
+          startup-command: 'gunicorn --bind=0.0.0.0 --timeout 600 app:app'
