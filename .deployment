@@ -1,0 +1,2 @@
+[config]
+command = mkdir -p /home/site/wwwroot/templates && cp -f /home/site/repository/templates/* /home/site/wwwroot/templates/ && pip install -r requirements.txt
