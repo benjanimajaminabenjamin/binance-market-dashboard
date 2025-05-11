@@ -33,12 +33,6 @@ jobs:
         run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
-      
-      - name: Create templates directory and move index.html
-        run: |
-          mkdir -p templates
-          cp -f static/index.html templates/ || echo "File already moved or doesn't exist"
-          ls -la templates/
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -69,29 +63,14 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
+
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_824E1CF42EBE45C9BD74FB92E78D4E23 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FA74217CB7154001B9FB00E16F1E61A2 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F1C4D1EAC6B4BC79D4A550AA3F336F1 }}
-
-      - name: Configure App Service
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            # Enable system-assigned managed identity
-            az webapp identity assign --name binance-market-dashboard --resource-group BinanceMonitor
-            
-            # Set startup command
-            az webapp config set --name binance-market-dashboard --resource-group BinanceMonitor \
-              --startup-command "gunicorn --bind=0.0.0.0 --timeout 600 app:app"
-            
-            # Configure logging
-            az webapp log config --name binance-market-dashboard --resource-group BinanceMonitor \
-              --application-logging filesystem --detailed-error-messages true \
-              --failed-request-tracing true --web-server-logging filesystem
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_93B75C5C70B44EE1A2CF654735E1AC56 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F9594250706F4A638C2A18DEF1AD1716 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5F1A9CC3A0DD4478BB5F57989C2F8A24 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -100,11 +79,3 @@ jobs:
           app-name: 'binance-market-dashboard'
           slot-name: 'Production'
           
-      - name: Verify deployment
-        run: |
-          echo "Deployed to URL: ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
-          echo "Waiting 30 seconds for the app to start..."
-          sleep 30
-          echo "Please verify the app is working by visiting:"
-          echo "${{ steps.deploy-to-webapp.outputs.webapp-url }}"
-          echo "If there are issues, check the logs in Azure Portal > App Service > binance-market-dashboard > Monitoring > Log stream"
